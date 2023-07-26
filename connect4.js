@@ -11,6 +11,7 @@ class Game {
     this.height = height;
     this.currPlayer = 1; // active player: 1 or 2
     this.board = []; // array of rows, each row is array of cells  (board[y][x])
+    this.isGameOver = false;
   }
 
   /** makeBoard: create in-JS board structure:*/
@@ -76,6 +77,10 @@ class Game {
 
   /**  endGame: announce game end */
   endGame(msg) {
+    if (this.isGameOver) {
+      document.getElementById('board').style.pointerEvents = 'none';
+    }
+
     alert(msg);
   }
 
@@ -96,11 +101,13 @@ class Game {
     
     // check for win
     if (this.checkForWin()) {
-      return this.endGame(`Player ${currPlayer} won!`);
+      this.isGameOver = true;
+      return this.endGame(`Player ${this.currPlayer} won!`);
     }
     
     // check for tie
     if (this.board.every(row => row.every(cell => cell))) {
+      this.isGameOver = true;
       return this.endGame('Tie!');
     }
       
@@ -140,8 +147,40 @@ class Game {
       }
     }
   }
+
+  /** loadStartBtn: loads start btn before beginning game */
+  loadStartBtn() {
+    const game = document.getElementById('game');
+    const form = document.querySelector('form');
+
+    this.handleStartClick = this.handleStartClick.bind(this);
+    form.addEventListener('submit', this.handleStartClick);
+  }
+
+  /** handleStartClick: once start button is clicked, game can begin */
+  handleStartClick(evt) {
+    evt.preventDefault();
+    this.resetGame();
+    document.getElementById('board').style.pointerEvents = 'all';
+  }
+
+  /** resetGame: resets board HTML and properties to begin game */
+  resetGame() {
+    // reset HTML
+    const board = document.getElementById('board');
+    board.innerHTML = '';
+
+    // reset properties
+    this.currPlayer = 1; // active player: 1 or 2
+    this.board = []; // array of rows, each row is array of cells  (board[y][x])
+    this.isGameOver = false;
+
+    // create board
+    this.makeBoard();
+    this.makeHtmlBoard();
+  }
 }
 
 const game = new Game(6,7);
-game.makeBoard();
-game.makeHtmlBoard();
+game.loadStartBtn();
+
