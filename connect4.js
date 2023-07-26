@@ -9,7 +9,9 @@ class Game {
   constructor(height, width) {
     this.width = width;
     this.height = height;
-    this.currPlayer = 1; // active player: 1 or 2
+    this.player1 = {};
+    this.player2 = {};
+    this.currPlayer = {}; // active player: 1 or 2
     this.board = []; // array of rows, each row is array of cells  (board[y][x])
     this.isGameOver = false;
   }
@@ -68,7 +70,7 @@ class Game {
   placeInTable(y, x) {
     const piece = document.createElement('div');
     piece.classList.add('piece');
-    piece.classList.add(`p${this.currPlayer}`);
+    piece.style.backgroundColor = this.currPlayer.color;
     piece.style.top = -50 * (y + 2);
 
     const spot = document.getElementById(`${y}-${x}`);
@@ -102,7 +104,7 @@ class Game {
     // check for win
     if (this.checkForWin()) {
       this.isGameOver = true;
-      return this.endGame(`Player ${this.currPlayer} won!`);
+      return this.endGame(`Player ${this.currPlayer.color} won!`);
     }
     
     // check for tie
@@ -112,7 +114,7 @@ class Game {
     }
       
     // switch players
-    this.currPlayer = this.currPlayer === 1 ? 2 : 1;
+    this.currPlayer = this.currPlayer === this.player1 ? this.player2 : this.player1;
   }
 
   /** checkForWin: check board cell-by-cell for "does a win start here?" */
@@ -161,6 +163,7 @@ class Game {
   handleStartClick(evt) {
     evt.preventDefault();
     this.resetGame();
+    this.createPlayers();
     document.getElementById('board').style.pointerEvents = 'all';
   }
 
@@ -171,13 +174,28 @@ class Game {
     board.innerHTML = '';
 
     // reset properties
-    this.currPlayer = 1; // active player: 1 or 2
+    this.currPlayer = {};
     this.board = []; // array of rows, each row is array of cells  (board[y][x])
     this.isGameOver = false;
 
     // create board
     this.makeBoard();
     this.makeHtmlBoard();
+  }
+
+  /** createPlayers: creates players based on input */
+  createPlayers() {
+    const form = document.querySelector('form');
+
+    this.player1 = new Player(form[0].value);
+    this.player2 = new Player(form[1].value);
+    this.currPlayer = this.player1;
+  }
+}
+
+class Player {
+  constructor(color) {
+    this.color = color;
   }
 }
 
